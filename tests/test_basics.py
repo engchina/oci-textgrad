@@ -105,12 +105,6 @@ def test_get_engine():
     with pytest.raises(ValueError):
         get_engine("invalid-engine")
 
-    with pytest.raises(ValueError):
-        get_engine("experimental:claude-3-opus-20240229", cache=[1,2,3])
-
-    with pytest.raises(ValueError):
-        get_engine("gpt-4o", cache=True)
-
 
 # Test importing main components from textgrad
 def test_import_main_components():
@@ -199,7 +193,7 @@ def test_multimodal():
     image_url = "https://upload.wikimedia.org/wikipedia/commons/a/a7/Camponotus_flavomarginatus_ant.jpg"
     image_data = httpx.get(image_url).content
 
-    os.environ['OPENAI_API_KEY'] = "fake_key"
+    os.environ['OCI_COMPARTMENT_ID'] = "fake_compartment_id"
     engine = DummyMultimodalEngine(is_multimodal=True)
 
     image_variable = Variable(image_data,

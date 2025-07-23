@@ -7,7 +7,7 @@ TextGradの基本的なプリミティブ（Variable、Engine、Loss、Optimizer
 
 要件:
 - OCI Generative AI が設定されている必要があります
-- OCI設定を行い、OCI_COMPARTMENT_OCID環境変数を設定してください
+- OCI設定を行い、OCI_COMPARTMENT_ID環境変数を設定してください
 """
 
 # 必要なライブラリのインポート

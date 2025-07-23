@@ -99,18 +99,20 @@ def check_requirements():
 
     # 環境変数のチェック
     print("\n=== 環境変数チェック ===")
+    # OCI_COMPARTMENT_ID と OCI_COMPARTMENT_OCID の両方をサポート
+    oci_compartment = os.getenv('OCI_COMPARTMENT_ID') or os.getenv('OCI_COMPARTMENT_OCID')
+    if oci_compartment:
+        env_name = 'OCI_COMPARTMENT_ID' if os.getenv('OCI_COMPARTMENT_ID') else 'OCI_COMPARTMENT_OCID'
+        print(f"✓ {env_name} が設定されています")
+    else:
+        print("✗ OCI_COMPARTMENT_ID または OCI_COMPARTMENT_OCID が設定されていません")
+        print("  すべてのチュートリアルでOCI Generative AIが必要です")
+
     openai_key = os.getenv('OPENAI_API_KEY')
     if openai_key:
-        print("✓ OPENAI_API_KEY が設定されています")
+        print("- OPENAI_API_KEY が設定されています（現在は使用されていません）")
     else:
-        print("✗ OPENAI_API_KEY が設定されていません")
-        print("  多くのチュートリアルでOpenAI APIキーが必要です")
-
-    oci_compartment = os.getenv('OCI_COMPARTMENT_OCID')
-    if oci_compartment:
-        print("✓ OCI_COMPARTMENT_OCID が設定されています")
-    else:
-        print("- OCI_COMPARTMENT_OCID が設定されていません（一部のチュートリアルで必要）")
+        print("- OPENAI_API_KEY が設定されていません（現在は不要）")
 
     return True
 

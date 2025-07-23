@@ -20,24 +20,24 @@ def compress_image(decoded_image, max_size_bytes=3.6*1024*1024):
     buffer = io.BytesIO()
     decoded_image.save(buffer, format='JPEG')
     size = buffer.tell()
-    
+
     if size <= max_size_bytes:
         buffer.seek(0)
         return buffer.getvalue()
-    
+
     width, height = decoded_image.size
     while size > max_size_bytes:
         width = int(width * 0.9)
         height = int(height * 0.9)
         resized_image = decoded_image.resize((width, height), Image.LANCZOS)
-        
+
         buffer = io.BytesIO()
         resized_image.save(buffer, format='JPEG')
         size = buffer.tell()
-        
+
         if width <= 1 or height <= 1:
             raise ValueError("Unable to compress image to the desired size without excessive loss of resolution")
-    
+
     buffer.seek(0)
     return buffer.getvalue()
 
@@ -106,10 +106,10 @@ def extract_answer(response, problem, quick_extract=False):
 
     if response == "":
         return ""
-    
+
     if question_type == 'multi_choice' and response in choices:
         return response
-    
+
     if answer_type == "integer":
         try:
             extraction = int(response)
@@ -134,8 +134,8 @@ def extract_answer(response, problem, quick_extract=False):
             raise Exception(f"Error in extracting answer for {pid}: {e}. Remove this line responsibly.")
 
     try:
-        from textgrad.engine.openai import ChatOpenAI
-        local_llm_engine = ChatOpenAI(model_string="gpt-3.5-turbo", is_multimodal=False)
+        from textgrad.engine.oci_generative_ai import ChatOCI
+        local_llm_engine = ChatOCI(model_string="xai.grok-3", is_multimodal=False)
 
         full_prompt = create_test_prompt(demo_prompt, query, response)
         extraction = local_llm_engine(full_prompt)
@@ -171,14 +171,14 @@ def normalize_extracted_answer(extraction, question_data):
                 extraction = str(extraction)
             except:
                 extraction = ""
-    
+
         # extract "A" from "(A) text"
         letter = re.findall(r'\(([a-zA-Z])\)', extraction)
         if len(letter) > 0:
             extraction = letter[0].upper()
-        
+
         options = [chr(ord('A') + i) for i in range(len(choices))]
-            
+
         if extraction in options:
             # convert option letter to text, e.g. "A" -> "text"
             ind = options.index(extraction)
@@ -207,7 +207,7 @@ def normalize_extracted_answer(extraction, question_data):
             extraction = None
 
     return extraction
-    
+
 
 def safe_equal(prediction, answer):
     """
@@ -220,7 +220,7 @@ def safe_equal(prediction, answer):
     except Exception as e:
         print(e)
         return False
-    
+
 
 class MathVistaDataset(Dataset):
     def __init__(self, evaluation_api:str, root: str=None, split: str="testmini", task_instruction: str=None, evaluation_instruction: str=None, *args, **kwargs):
@@ -233,10 +233,10 @@ class MathVistaDataset(Dataset):
         self.data = load_dataset("AI4Math/MathVista", cache_dir=root, split=split)
         self.split = split
         self.evaluation_api = evaluation_api
-        self.anwer_extraction_openai_engine = "gpt-3.5-turbo" # robust enough for answer extraction
+        self.anwer_extraction_oci_engine = "xai.grok-3" # OCI Generative AI エンジンを使用
         self.task_instruction = self.get_default_task_instruction(task_instruction) # NOTE: check the task instruction
         self.evaluation_instruction = self.get_default_evaluation_instruction(evaluation_instruction) # NOTE: check the evaluation instruction
-    
+
     def __getitem__(self, index):
         row = self.data[index]
         pid = row["pid"]
@@ -247,7 +247,7 @@ class MathVistaDataset(Dataset):
         answer = row["answer"]
         question_type = row["question_type"]
         answer_type = row["answer_type"]
-        metadata = row["metadata"] 
+        metadata = row["metadata"]
         query = row["query"]
         query = f"{self.task_instruction}\n{query}" # NOTE: Add the task description
 
@@ -286,7 +286,7 @@ class MathVistaDataset(Dataset):
         else:
             task_instruction = "You will answer a mathematical reasoning question based on an image. Please ensure you accurately interpret the image and think step by step."
         return task_instruction
-    
+
     def get_default_evaluation_instruction(self, instruction):
         if instruction is not None:
             print("Using user-defined evaluation instruction:\n", instruction, "\n")
@@ -309,9 +309,9 @@ class MathVistaDataset(Dataset):
             var_image = Variable(image, role_description="image input", requires_grad=False)
             var_question = Variable(question, role_description="question input", requires_grad=False)
             return eval_fn(question=var_question, image=var_image, response=instance)
-        
+
         return test_time_objective
-        
+
     def eval_extraction_and_matching(self, response_text, correct_answer, question_data):
         # Extract the precited answer text from the response
         extracted_answer  = extract_answer(response_text, question_data)

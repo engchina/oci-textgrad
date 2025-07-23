@@ -7,7 +7,7 @@ OCI Generative AI の xai.grok-3 モデルを使用してTextGradを使用する
 
 要件:
 - OCI Generative AI が設定されている必要があります
-- OCI設定を行い、OCI_COMPARTMENT_OCID環境変数を設定してください
+- OCI設定を行い、OCI_COMPARTMENT_ID環境変数を設定してください
 """
 
 import textgrad as tg
@@ -35,7 +35,7 @@ def main():
     print("OCI Generative AI は、Oracle Cloud Infrastructure で提供される生成AIサービスです。")
     print("1. OCI アカウントを設定")
     print("2. 適切な権限を設定")
-    print("3. OCI_COMPARTMENT_OCID 環境変数を設定")
+    print("3. OCI_COMPARTMENT_ID 環境変数を設定")
     print("4. TextGrad で OCI Generative AI を使用")
     
     # OCI モデルの設定
@@ -48,7 +48,7 @@ def main():
         print("実際の使用時には、以下の手順で OCI Generative AI を設定します：")
         print("1. OCI アカウントを設定")
         print("2. 適切な権限を設定")
-        print("3. OCI_COMPARTMENT_OCID 環境変数を設定")
+        print("3. OCI_COMPARTMENT_ID 環境変数を設定")
         
         # デモ用の模擬エンジン
         class MockEngine:
@@ -160,7 +160,7 @@ x2 = (7 - √73)"""
     print("OCI Generative AI の設定のヒント：")
     print("1. OCI アカウントを適切に設定")
     print("2. 必要な権限を付与")
-    print("3. OCI_COMPARTMENT_OCID 環境変数を設定")
+    print("3. OCI_COMPARTMENT_ID 環境変数を設定")
     print("4. 適切なリージョンを選択")
     print("5. コスト管理のための制限を設定")
     

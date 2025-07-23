@@ -6,7 +6,7 @@ TextGrad チュートリアル: マルチモーダル最適化
 TextGradを使用したマルチモーダル最適化を紹介します。
 
 要件:
-- OpenAI API キーが必要です。環境変数 OPENAI_API_KEY として設定してください。
+- OCI Generative AI の設定が必要です。環境変数 OCI_COMPARTMENT_ID として設定してください。
 """
 
 import io
@@ -74,15 +74,30 @@ def main():
                                     requires_grad=True)
 
     # 損失関数の作成
-    loss_fn = ImageQALoss()
+    try:
+        evaluation_instruction = "この画像に関する回答が完全で良い回答かどうかを評価してください。厳しく批評してください。"
+        loss_fn = ImageQALoss(
+            evaluation_instruction=evaluation_instruction,
+            engine="meta.llama-4-scout-17b-16e-instruct"
+        )
+        print("ImageQALoss損失関数が作成されました。")
 
-    print("最適化可能な回答:")
-    print(optimizable_answer.value)
+        print("最適化可能な回答:")
+        print(optimizable_answer.value)
 
-    # 損失の計算（実際の最適化は省略）
-    print("\n=== 損失の計算 ===")
-    print("実際のアプリケーションでは、ここで損失を計算し、")
-    print("逆伝播と最適化ステップを実行して回答を改善します。")
+        # 損失の計算（実際の最適化は省略）
+        print("\n=== 損失の計算 ===")
+        print("実際のアプリケーションでは、ここで以下を実行します：")
+        print("1. loss_fn(image=image_variable, question=question_variable, response=optimizable_answer)")
+        print("2. 逆伝播と最適化ステップを実行して回答を改善")
+
+    except Exception as e:
+        print(f"ImageQALoss の作成に失敗しました: {e}")
+        print("デモモードで続行します。")
+        print("実際のアプリケーションでは、以下を実行します：")
+        print("1. 画像、質問、回答を損失関数に入力")
+        print("2. 回答の品質を評価")
+        print("3. 改善のためのフィードバックを生成")
 
     # マルチモーダル最適化の応用例
     print("\n=== マルチモーダル最適化の応用例 ===")

@@ -105,26 +105,22 @@ pip install textgrad
 pip install python-dotenv
 pip install pillow
 pip install httpx
-pip install openai  # ローカルモデル用
+pip install oci  # OCI SDK
 ```
 
 ### 環境変数
-ほとんどのチュートリアルでは、以下の環境変数が必要です：
+すべてのチュートリアルでは、以下の環境変数が必要です：
 
 ```bash
 # OCI Generative AI用（すべてのチュートリアルで必要）
-export OCI_COMPARTMENT_OCID="your-compartment-ocid"
-
-# OpenAI API キー（参考用、現在は使用されていません）
-# export OPENAI_API_KEY="your-api-key-here"
+export OCI_COMPARTMENT_ID="your-compartment-ocid"
 ```
 
 ### .envファイルの使用
 プロジェクトルートに`.env`ファイルを作成することもできます：
 
 ```
-OCI_COMPARTMENT_OCID=your-compartment-ocid
-# OPENAI_API_KEY=your-api-key-here  # 参考用
+OCI_COMPARTMENT_ID=your-compartment-ocid
 ```
 
 ## 特別な要件
@@ -134,7 +130,7 @@ OCI_COMPARTMENT_OCID=your-compartment-ocid
 
 1. OCI アカウントを設定
 2. 適切な権限を設定
-3. OCI_COMPARTMENT_OCID 環境変数を設定
+3. OCI_COMPARTMENT_ID 環境変数を設定
 
 ### マルチモーダルチュートリアル
 画像処理のために追加のライブラリが必要な場合があります：
@@ -160,7 +156,7 @@ pip install httpx
 
 ### 一般的な問題
 
-1. **OCI設定エラー**: OCI_COMPARTMENT_OCID環境変数が正しく設定されていることを確認
+1. **OCI設定エラー**: OCI_COMPARTMENT_ID環境変数が正しく設定されていることを確認
 2. **インポートエラー**: 必要なライブラリがインストールされていることを確認
 3. **接続エラー**: インターネット接続とOCI Generative AIサービスの状態を確認
 4. **権限エラー**: 適切なIAMポリシーが設定されていることを確認

@@ -290,11 +290,11 @@ class ChatOCI(BaseOCIEngine):
         :param is_multimodal: マルチモーダルモデルかどうか
         """
         if compartment_id is None:
-            # .envファイルまたは環境変数からOCI_COMPARTMENT_OCIDを取得
-            compartment_id = os.getenv("OCI_COMPARTMENT_OCID") or os.getenv("OCI_COMPARTMENT_ID")
+            # .envファイルまたは環境変数からOCI_COMPARTMENT_IDを取得
+            compartment_id = os.getenv("OCI_COMPARTMENT_ID") or os.getenv("OCI_COMPARTMENT_ID")
             if compartment_id is None:
                 raise ValueError(
-                    "OCI_COMPARTMENT_OCID環境変数を.envファイルに設定するか、compartment_idパラメータを指定してください。"
+                    "OCI_COMPARTMENT_ID環境変数を.envファイルに設定するか、compartment_idパラメータを指定してください。"
                 )
 
         root = platformdirs.user_cache_dir("textgrad")

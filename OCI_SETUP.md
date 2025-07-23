@@ -58,13 +58,13 @@ export OCI_CONFIG_PROFILE="DEFAULT"
 プロジェクトルートに `.env` ファイルを作成し、以下を記述:
 
 ```bash
-OCI_COMPARTMENT_OCID=ocid1.compartment.oc1..your_compartment_id
+OCI_COMPARTMENT_ID=ocid1.compartment.oc1..your_compartment_id
 ```
 
 #### 方法2: 環境変数として設定
 
 ```bash
-export OCI_COMPARTMENT_OCID="ocid1.compartment.oc1..your_compartment_id"
+export OCI_COMPARTMENT_ID="ocid1.compartment.oc1..your_compartment_id"
 # または従来の名前でも可
 export OCI_COMPARTMENT_ID="ocid1.compartment.oc1..your_compartment_id"
 ```
@@ -76,7 +76,7 @@ export OCI_COMPARTMENT_ID="ocid1.compartment.oc1..your_compartment_id"
 ```python
 from textgrad.engine import get_engine
 
-# .envファイルに OCI_COMPARTMENT_OCID が設定されている場合、
+# .envファイルに OCI_COMPARTMENT_ID が設定されている場合、
 # 自動的に読み込まれます
 
 # エンジンを取得
@@ -208,7 +208,9 @@ python test_oci_engine.py
 
 ## 変更履歴
 
-- OpenAI サポートを削除
-- OCI Generative AI サポートを追加
-- xai.grok-3 モデルのサポート
+- OpenAI サポートを完全削除
+- 第三方 AI サービス（Anthropic、Google Gemini、Together AI、Cohere、VLLM）のサポートを削除
+- OCI Generative AI 専用プロジェクトに変更
+- xai.grok-3 および meta.llama-4-scout-17b-16e-instruct モデルのサポート
 - 日本語対応の改善
+- プロジェクトの簡素化とメンテナンス性の向上

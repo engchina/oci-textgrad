@@ -36,12 +36,12 @@ def main():
 
     # 環境変数の確認
     print("\n=== 環境設定の確認 ===")
-    openai_api_key = os.getenv('OPENAI_API_KEY')
-    if not openai_api_key:
-        print("警告: OPENAI_API_KEY環境変数が設定されていません。")
-        print("実際の使用時には、OpenAI APIキーを設定してください。")
+    oci_compartment_id = os.getenv('OCI_COMPARTMENT_ID')
+    if not oci_compartment_id:
+        print("警告: OCI_COMPARTMENT_ID環境変数が設定されていません。")
+        print("実際の使用時には、OCI Compartment IDを設定してください。")
     else:
-        print("OpenAI APIキーが設定されています。")
+        print("OCI Compartment IDが設定されています。")
 
     # バックワードエンジンの設定
     print("\n=== エンジンの設定 ===")
@@ -117,17 +117,22 @@ def main():
     # 画像QA損失の使用
     print("\n=== 画像QA損失の使用 ===")
     try:
-        qa_loss = ImageQALoss()
+        evaluation_instruction = "この数学問題に対する回答が完全で正確かどうかを評価してください。数学的な正確性を重視して厳しく批評してください。"
+        qa_loss = ImageQALoss(
+            evaluation_instruction=evaluation_instruction,
+            engine="meta.llama-4-scout-17b-16e-instruct"
+        )
         print("ImageQALoss損失関数が作成されました。")
 
         # 損失の計算（実際の実装では画像、質問、回答を使用）
         print("実際のアプリケーションでは、ここで以下を実行します：")
-        print("1. 画像、質問、回答を損失関数に入力")
+        print("1. qa_loss(image=image_variable, question=question_variable, response=answer_variable)")
         print("2. 回答の品質を評価")
         print("3. 改善のためのフィードバックを生成")
 
     except Exception as e:
         print(f"ImageQALoss の作成に失敗しました: {e}")
+        print("デモモードで続行します。")
 
     # 最適化プロセス
     print("\n=== 最適化プロセス ===")

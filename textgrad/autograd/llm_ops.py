@@ -1,5 +1,5 @@
 from textgrad import logger
-from textgrad.defaults import (SYSTEM_PROMPT_DEFAULT_ROLE, 
+from textgrad.defaults import (SYSTEM_PROMPT_DEFAULT_ROLE,
                                VARIABLE_OUTPUT_DEFAULT_ROLE)
 from textgrad.variable import Variable
 from textgrad.engine import EngineLM
@@ -32,25 +32,25 @@ class LLMCall(Function):
         self.system_prompt = system_prompt
         if self.system_prompt and self.system_prompt.get_role_description() is None:
             self.system_prompt.set_role_description(SYSTEM_PROMPT_DEFAULT_ROLE)
-    
+
     def forward(self, input_variable: Variable, response_role_description: str = VARIABLE_OUTPUT_DEFAULT_ROLE) -> Variable:
         """
         The LLM call. This function will call the LLM with the input and return the response, also register the grad_fn for backpropagation.
-        
+
         :param input_variable: The input variable (aka prompt) to use for the LLM call.
         :type input_variable: Variable
         :param response_role_description: Role description for the LLM response, defaults to VARIABLE_OUTPUT_DEFAULT_ROLE
         :type response_role_description: str, optional
         :return: response sampled from the LLM
         :rtype: Variable
-        
+
         :example:
         >>> from textgrad import Variable, get_engine
         >>> from textgrad.autograd.llm_ops import LLMCall
-        >>> engine = get_engine("gpt-3.5-turbo")
+        >>> engine = get_engine("xai.grok-3")
         >>> llm_call = LLMCall(engine)
         >>> prompt = Variable("What is the capital of France?", role_description="prompt to the LM")
-        >>> response = llm_call(prompt, engine=engine) 
+        >>> response = llm_call(prompt, engine=engine)
         # This returns something like Variable(data=The capital of France is Paris., grads=)
         """
         # TODO: Should we allow default roles? It will make things less performant.
@@ -65,17 +65,17 @@ class LLMCall(Function):
             predecessors=[self.system_prompt, input_variable] if self.system_prompt else [input_variable],
             role_description=response_role_description
         )
-        
+
         logger.info(f"LLMCall function forward", extra={"text": f"System:{system_prompt_value}\nQuery: {input_variable.value}\nResponse: {response_text}"})
-        
+
         # Populate the gradient function, using a container to store the backward function and the context
-        response.set_grad_fn(BackwardContext(backward_fn=self.backward, 
-                                             response=response, 
-                                             prompt=input_variable.value, 
+        response.set_grad_fn(BackwardContext(backward_fn=self.backward,
+                                             response=response,
+                                             prompt=input_variable.value,
                                              system_prompt=system_prompt_value))
 
         return response
-    
+
     def backward(self, response: Variable, prompt: str, system_prompt: str, backward_engine: EngineLM):
         """
         Backward pass through the LLM call. This will register gradients in place.
@@ -106,16 +106,16 @@ class LLMCall(Function):
         return backward_prompt
 
     @staticmethod
-    def _backward_through_llm_chain(variables: List[Variable], 
-                                    response: Variable, 
-                                    prompt: str, 
+    def _backward_through_llm_chain(variables: List[Variable],
+                                    response: Variable,
+                                    prompt: str,
                                     system_prompt: str,
                                     backward_engine: EngineLM):
 
         """
         Backward through the LLM to compute gradients for each variable, in the case where the output has gradients on them.
         i.e. applying the chain rule.
-        
+
         :param variables: The list of variables to compute gradients for.
         :type variables: List[Variable]
         :param response: The response variable.
@@ -142,22 +142,22 @@ class LLMCall(Function):
                 "variable_desc": variable.get_role_description(),
                 "variable_short": variable.get_short_value()
             }
-            
+
             backward_prompt = LLMCall._construct_llm_chain_backward_prompt(backward_info)
 
             logger.info(f"_backward_through_llm prompt", extra={"_backward_through_llm": backward_prompt})
             gradient_value = backward_engine(backward_prompt, system_prompt=BACKWARD_SYSTEM_PROMPT)
             logger.info(f"_backward_through_llm gradient", extra={"_backward_through_llm": gradient_value})
-            
+
             var_gradients = Variable(value=gradient_value, role_description=f"feedback to {variable.get_role_description()}")
             variable.gradients.add(var_gradients)
             conversation = CONVERSATION_TEMPLATE.format(**backward_info)
             variable.gradients_context[var_gradients] = {
-                "context": conversation, 
+                "context": conversation,
                 "response_desc": response.get_role_description(),
                 "variable_desc": variable.get_role_description()
             }
-            
+
             if response._reduce_meta:
                 var_gradients._reduce_meta.extend(response._reduce_meta)
                 variable._reduce_meta.extend(response._reduce_meta)
@@ -171,13 +171,13 @@ class LLMCall(Function):
         return backward_prompt
 
     @staticmethod
-    def _backward_through_llm_base(variables: List[Variable], 
+    def _backward_through_llm_base(variables: List[Variable],
                                    response: Variable,
                                    prompt: str,
                                    system_prompt: str,
                                    backward_engine: EngineLM):
         """
-        Backward pass through the LLM base. 
+        Backward pass through the LLM base.
         In this case we do not have gradients on the output variable.
 
         :param variables: A list of variables to compute gradients for.
@@ -203,9 +203,9 @@ class LLMCall(Function):
                 "variable_desc": variable.get_role_description(),
                 "variable_short": variable.get_short_value()
             }
-            
+
             backward_prompt = LLMCall._construct_llm_base_backward_prompt(backward_info)
-            
+
             logger.info(f"_backward_through_llm prompt", extra={"_backward_through_llm": backward_prompt})
             gradient_value = backward_engine(backward_prompt, system_prompt=BACKWARD_SYSTEM_PROMPT)
             logger.info(f"_backward_through_llm gradient", extra={"_backward_through_llm": gradient_value})
@@ -214,7 +214,7 @@ class LLMCall(Function):
             var_gradients = Variable(value=gradient_value, role_description=f"feedback to {variable.get_role_description()}")
             variable.gradients.add(var_gradients)
             variable.gradients_context[var_gradients] = {
-                "context": conversation, 
+                "context": conversation,
                 "response_desc": response.get_role_description(),
                 "variable_desc": variable.get_role_description()
             }
@@ -226,8 +226,8 @@ class LLMCall(Function):
 
 
 class FormattedLLMCall(LLMCall):
-    def __init__(self, 
-                 engine: EngineLM, 
+    def __init__(self,
+                 engine: EngineLM,
                  format_string: str,
                  fields: dict[str, str],
                  system_prompt: Variable = None):
@@ -246,12 +246,12 @@ class FormattedLLMCall(LLMCall):
         super().__init__(engine, system_prompt)
         self.format_string = format_string
         self.fields = fields
-    
-    
-    def forward(self, 
-                inputs: dict[str, Variable], 
+
+
+    def forward(self,
+                inputs: dict[str, Variable],
                 response_role_description: str = VARIABLE_OUTPUT_DEFAULT_ROLE) -> Variable:
-        """The LLM call with formatted strings. 
+        """The LLM call with formatted strings.
         This function will call the LLM with the input and return the response, also register the grad_fn for backpropagation.
 
         :param inputs: Variables to use for the input. This should be a mapping of the fields to the variables.
@@ -263,9 +263,9 @@ class FormattedLLMCall(LLMCall):
         """
         # First ensure that all keys are present in the fields
         assert set(inputs.keys()) == set(self.fields.keys()), f"Expected fields {self.fields.keys()} but got {inputs.keys()}"
-        
+
         input_variables = list(inputs.values())
-        
+
         # Now format the string
         formatted_input_string = self.format_string.format(**{k: inputs[k].value for k in inputs.keys()})
 
@@ -281,38 +281,38 @@ class FormattedLLMCall(LLMCall):
             predecessors=[self.system_prompt, *input_variables] if self.system_prompt else [*input_variables],
             role_description=response_role_description
         )
-        
+
         logger.info(f"LLMCall function forward", extra={"text": f"System:{system_prompt_value}\nQuery: {formatted_input_string}\nResponse: {response_text}"})
-        
+
         # Populate the gradient function, using a container to store the backward function and the context
-        response.set_grad_fn(BackwardContext(backward_fn=self.backward, 
-                                             response=response, 
-                                             prompt=formatted_input_string, 
+        response.set_grad_fn(BackwardContext(backward_fn=self.backward,
+                                             response=response,
+                                             prompt=formatted_input_string,
                                              system_prompt=system_prompt_value))
-        
+
         return response
 
 
 class LLMCall_with_in_context_examples(LLMCall):
-    
+
     def forward(self, input_variable: Variable, response_role_description: str = VARIABLE_OUTPUT_DEFAULT_ROLE, in_context_examples: List[str]=None) -> Variable:
         """
         The LLM call. This function will call the LLM with the input and return the response, also register the grad_fn for backpropagation.
-        
+
         :param input_variable: The input variable (aka prompt) to use for the LLM call.
         :type input_variable: Variable
         :param response_role_description: Role description for the LLM response, defaults to VARIABLE_OUTPUT_DEFAULT_ROLE
         :type response_role_description: str, optional
         :return: response sampled from the LLM
         :rtype: Variable
-        
+
         :example:
         >>> from textgrad import Variable, get_engine
         >>> from textgrad.autograd.llm_ops import LLMCall
-        >>> engine = get_engine("gpt-3.5-turbo")
+        >>> engine = get_engine("xai.grok-3")
         >>> llm_call = LLMCall(engine)
         >>> prompt = Variable("What is the capital of France?", role_description="prompt to the LM")
-        >>> response = llm_call(prompt, engine=engine) 
+        >>> response = llm_call(prompt, engine=engine)
         # This returns something like Variable(data=The capital of France is Paris., grads=)
         """
         # TODO: Should we allow default roles? It will make things less performant.
@@ -330,17 +330,17 @@ class LLMCall_with_in_context_examples(LLMCall):
         )
 
 
-        
+
         logger.info(f"LLMCall function forward", extra={"text": f"System:{system_prompt_value}\nQuery: {input_variable.value}\nResponse: {response_text}"})
-        
+
         # Populate the gradient function, using a container to store the backward function and the context
-        response.set_grad_fn(BackwardContext(backward_fn=self.backward, 
-                                             response=response, 
-                                             prompt=input_variable.value, 
+        response.set_grad_fn(BackwardContext(backward_fn=self.backward,
+                                             response=response,
+                                             prompt=input_variable.value,
                                              system_prompt=system_prompt_value,
                                              in_context_examples=in_context_examples))
-        
-        # Stopping creteria Could be improved, now is very ugly. 
+
+        # Stopping creteria Could be improved, now is very ugly.
         if "The plan doesn't need to be improved" in response_text.split('<FINAL>')[1].split('</FINAL>')[0].strip():
             response = None
 
@@ -376,19 +376,19 @@ class LLMCall_with_in_context_examples(LLMCall):
         if len(backward_info['in_context_examples']) > 0:
             backward_prompt += IN_CONTEXT_EXAMPLE_PROMPT_ADDITION.format(**backward_info)
         backward_prompt += EVALUATE_VARIABLE_INSTRUCTION.format(**backward_info)
-       
+
         return backward_prompt
     @staticmethod
-    def _backward_through_llm_chain(variables: List[Variable], 
-                                    response: Variable, 
-                                    prompt: str, 
+    def _backward_through_llm_chain(variables: List[Variable],
+                                    response: Variable,
+                                    prompt: str,
                                     system_prompt: str,
                                     backward_engine: EngineLM,
                                     in_context_examples: List[str]=None):
         """
         Backward through the LLM to compute gradients for each variable, in the case where the output has gradients on them.
         i.e. applying the chain rule.
-        
+
         :param variables: The list of variables to compute gradients for.
         :type variables: List[Variable]
         :param response: The response variable.
@@ -416,22 +416,22 @@ class LLMCall_with_in_context_examples(LLMCall):
                 "variable_short": variable.get_short_value(),
                 "in_context_examples": "\n".join(in_context_examples) if in_context_examples is not None else [],
             }
-            
+
             backward_prompt = LLMCall_with_in_context_examples._construct_llm_chain_backward_prompt(backward_info)
 
             logger.info(f"_backward_through_llm prompt", extra={"_backward_through_llm": backward_prompt})
             gradient_value = backward_engine(backward_prompt, system_prompt=BACKWARD_SYSTEM_PROMPT)
             logger.info(f"_backward_through_llm gradient", extra={"_backward_through_llm": gradient_value})
-            
+
             var_gradients = Variable(value=gradient_value, role_description=f"feedback to {variable.get_role_description()}")
             variable.gradients.add(var_gradients)
             conversation = CONVERSATION_TEMPLATE.format(**backward_info)
             variable.gradients_context[var_gradients] = {
-                "context": conversation, 
+                "context": conversation,
                 "response_desc": response.get_role_description(),
                 "variable_desc": variable.get_role_description()
             }
-            
+
             if response._reduce_meta:
                 var_gradients._reduce_meta.extend(response._reduce_meta)
                 variable._reduce_meta.extend(response._reduce_meta)
@@ -441,23 +441,23 @@ class LLMCall_with_in_context_examples(LLMCall):
         conversation = CONVERSATION_TEMPLATE.format(**backward_info)
         backward_prompt = CONVERSATION_START_INSTRUCTION_BASE.format(conversation=conversation, **backward_info)
         backward_prompt += OBJECTIVE_INSTRUCTION_BASE.format(**backward_info)
-        
+
         if len(backward_info['in_context_examples']) > 0:
             backward_prompt += IN_CONTEXT_EXAMPLE_PROMPT_ADDITION.format(**backward_info)
         backward_prompt += EVALUATE_VARIABLE_INSTRUCTION.format(**backward_info)
 
-        
+
         return backward_prompt
 
     @staticmethod
-    def _backward_through_llm_base(variables: List[Variable], 
+    def _backward_through_llm_base(variables: List[Variable],
                                    response: Variable,
                                    prompt: str,
                                    system_prompt: str,
                                    backward_engine: EngineLM,
                                    in_context_examples: List[str]=None):
         """
-        Backward pass through the LLM base. 
+        Backward pass through the LLM base.
         In this case we do not have gradients on the output variable.
 
         :param variables: A list of variables to compute gradients for.
@@ -486,9 +486,9 @@ class LLMCall_with_in_context_examples(LLMCall):
                 "in_context_examples": "\n".join(in_context_examples) if in_context_examples is not None else [],
 
             }
-            
+
             backward_prompt = LLMCall_with_in_context_examples._construct_llm_base_backward_prompt(backward_info)
-            
+
             logger.info(f"_backward_through_llm prompt", extra={"_backward_through_llm": backward_prompt})
             gradient_value = backward_engine(backward_prompt, system_prompt=BACKWARD_SYSTEM_PROMPT)
             logger.info(f"_backward_through_llm gradient", extra={"_backward_through_llm": gradient_value})
@@ -497,7 +497,7 @@ class LLMCall_with_in_context_examples(LLMCall):
             var_gradients = Variable(value=gradient_value, role_description=f"feedback to {variable.get_role_description()}")
             variable.gradients.add(var_gradients)
             variable.gradients_context[var_gradients] = {
-                "context": conversation, 
+                "context": conversation,
                 "response_desc": response.get_role_description(),
                 "variable_desc": variable.get_role_description()
             }

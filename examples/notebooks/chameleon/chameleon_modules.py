@@ -4,7 +4,7 @@ import copy
 import json
 import numpy as np
 
-from textgrad.engine.openai import ChatOpenAI
+# from textgrad.engine.openai import ChatOpenAI  # 現在は OCI Generative AI を使用
 
 from typing import Dict, Callable, Any, List
 
@@ -250,13 +250,14 @@ class ImageCaptionerModule(StringBasedFunction):
     def _build_image_captioner_model(self):
         """Builds and returns the image captioner model."""
         try:
-            local_mm_engine = ChatOpenAI(
+            from textgrad.engine.oci_generative_ai import ChatOCI
+            local_mm_engine = ChatOCI(
                 model_string=self.local_mm_engine_name, is_multimodal=True
             )
-            # print("Local OpenAI multimodal engine initialized.")
+            # print("Local OCI multimodal engine initialized.")
             return local_mm_engine
         except Exception as e:
-            print(f"Error initializing OpenAI engine: {e}")
+            print(f"Error initializing OCI engine: {e}")
             return None
 
     def _generate_caption(self, image_bytes):
@@ -268,7 +269,7 @@ class ImageCaptionerModule(StringBasedFunction):
         except Exception as e:
             print(f"Error generating caption: {e}")
             return ""
-        
+
     def forward(self, image_bytes, last_output, tool_tape, *args, **kwargs):
         caption = self._generate_caption(image_bytes)
 
@@ -421,7 +422,8 @@ class ChameleonAgent:
 
         # Initialize LLM engine
         self.local_mm_engine_name = args.engine
-        self.global_llm_engine = ChatOpenAI(
+        from textgrad.engine.oci_generative_ai import ChatOCI
+        self.global_llm_engine = ChatOCI(
             model_string=args.engine, is_multimodal=False
         )
         self.global_llm_call = LLMCall(engine=self.global_llm_engine)
@@ -468,7 +470,7 @@ class ChameleonAgent:
             "skill": example["skill"],
         }
         return metadata
-    
+
     def forward(
         self, pid: str = None, example: Dict[str, Any] = None, image_bytes: bytes = None
     ):
@@ -651,7 +653,7 @@ class ChameleonAgent:
                 print("="*50)
                 print(variable_to_optimize)
                 print("="*50)
-    
+
                 # Perform intermediate forward pass
                 output, current_state = self.intermediate_forward_pass(
                     t, variable_to_optimize

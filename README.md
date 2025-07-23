@@ -47,11 +47,11 @@ you to use any model you like, as long as it is supported by litellm. This means
 
 This should be seen as experimental but we plan to depreciate the old engines in the future.
 
-In addition to this, with the new engines it should be easy to enable and disable caching.  
+In addition to this, with the new engines it should be easy to enable and disable caching.
 
 We are in the process of testing these new engines and deprecating the old engines. If you have any issues, please let us know!
 
-The new litellm engines can be loaded with the following code: 
+The new litellm engines can be loaded with the following code:
 
 An example of loading a litellm engine:
 ```python
@@ -83,7 +83,7 @@ In the examples folder you will find two new notebooks that show how to use the 
 
 ## QuickStart
 If you know PyTorch, you know 80% of TextGrad.
-Let's walk through the key components with a simple example. Say we want to use GPT-4o to solve a simple
+Let's walk through the key components with a simple example. Say we want to use OCI Generative AI (Grok-3) to solve a simple
 reasoning problem.
 
 The question is *If it takes 1 hour to dry 25 shirts under the sun, how long will it take to dry 30 shirts under the sun? Reason step by step.* (Thanks, [Reddit User](https://www.reddit.com/r/OpenAI/comments/18q479x/comment/kf444es/))
@@ -91,10 +91,10 @@ The question is *If it takes 1 hour to dry 25 shirts under the sun, how long wil
 ```python
 import textgrad as tg
 
-tg.set_backward_engine("gpt-4o", override=True)
+tg.set_backward_engine("grok-3", override=True)
 
 # Step 1: Get an initial response from an LLM.
-model = tg.BlackboxLLM("gpt-4o")
+model = tg.BlackboxLLM("grok-3")
 question_string = ("If it takes 1 hour to dry 25 shirts under the sun, "
                    "how long will it take to dry 30 shirts under the sun? "
                    "Reason step by step")
@@ -154,7 +154,7 @@ We have many more examples around how TextGrad can optimize all kinds of variabl
 
 We have prepared a couple of tutorials to get you started with TextGrad. The order of this
 tutorial is what we would recommend to follow for a beginner. You can run them directly in Google Colab by clicking on the links below (but
-you need an OpenAI/Anthropic key to run the LLMs).
+you need to configure OCI Generative AI to run the LLMs).
 
 <div align="center">
 

@@ -32,12 +32,12 @@ def test_basic_functionality():
         print(f"✗ OCI エンジンのインポートに失敗: {e}")
         return False
 
-    # 環境変数の確認（OCI_COMPARTMENT_OCIDまたはOCI_COMPARTMENT_IDをチェック）
-    compartment_id = os.getenv("OCI_COMPARTMENT_OCID") or os.getenv("OCI_COMPARTMENT_ID")
+    # 環境変数の確認（OCI_COMPARTMENT_IDまたはOCI_COMPARTMENT_IDをチェック）
+    compartment_id = os.getenv("OCI_COMPARTMENT_ID") or os.getenv("OCI_COMPARTMENT_ID")
     if not compartment_id:
-        print("✗ OCI_COMPARTMENT_OCID または OCI_COMPARTMENT_ID 環境変数が設定されていません")
+        print("✗ OCI_COMPARTMENT_ID または OCI_COMPARTMENT_ID 環境変数が設定されていません")
         print("  以下のいずれかの方法で設定してください:")
-        print("  1. .envファイルに: OCI_COMPARTMENT_OCID='ocid1.compartment.oc1..your_compartment_id'")
+        print("  1. .envファイルに: OCI_COMPARTMENT_ID='ocid1.compartment.oc1..your_compartment_id'")
         print("  2. 環境変数として: export OCI_COMPARTMENT_ID='ocid1.compartment.oc1..your_compartment_id'")
         return False
 
@@ -83,7 +83,7 @@ def test_get_engine_function():
                 engine = get_engine(shortcut)
                 print(f"✓ '{shortcut}' でエンジン作成に成功")
             except ValueError as e:
-                if "OCI_COMPARTMENT_OCID" in str(e) or "OCI_COMPARTMENT_ID" in str(e) or "OCI設定" in str(e):
+                if "OCI_COMPARTMENT_ID" in str(e) or "OCI_COMPARTMENT_ID" in str(e) or "OCI設定" in str(e):
                     print(f"✓ '{shortcut}' は正しく認識されました（設定不足のため初期化失敗）")
                 else:
                     print(f"✗ '{shortcut}' で予期しないエラー: {e}")

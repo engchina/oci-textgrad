@@ -79,11 +79,10 @@ def create_env_file():
 
     print("📝 .envファイルを作成します...")
 
-    # ユーザーからAPIキーを取得
+    # ユーザーからOCI設定を取得
     print("\nOCI設定（必須 - 後で手動で設定することもできます）:")
 
     oci_compartment = input("OCI Compartment OCIDを入力してください（スキップする場合はEnter）: ").strip()
-    openai_key = input("OpenAI APIキーを入力してください（参考用、スキップする場合はEnter）: ").strip()
 
     # .envファイルの内容を作成
     env_content = """# TextGrad チュートリアル用環境変数
@@ -93,18 +92,14 @@ def create_env_file():
 """
 
     if oci_compartment:
-        env_content += f"OCI_COMPARTMENT_OCID={oci_compartment}\n"
+        env_content += f"OCI_COMPARTMENT_ID={oci_compartment}\n"
     else:
-        env_content += "OCI_COMPARTMENT_OCID=your-oci-compartment-ocid-here\n"
+        env_content += "OCI_COMPARTMENT_ID=your-oci-compartment-ocid-here\n"
 
     env_content += """
-# OpenAI API キー（参考用、現在は使用されていません）
+# 注意: このプロジェクトはOCI Generative AIを使用しており、OpenAI APIキーは不要です
+# OPENAI_API_KEY=your-openai-api-key-here  # 参考用のみ
 """
-
-    if openai_key:
-        env_content += f"# OPENAI_API_KEY={openai_key}\n"
-    else:
-        env_content += "# OPENAI_API_KEY=your-openai-api-key-here\n"
 
     env_content += """
 # その他の設定
@@ -156,7 +151,7 @@ def create_sample_config():
 
 [DEFAULT]
 # デフォルトエンジン
-default_engine = gpt-3.5-turbo
+default_engine = xai.grok-3
 
 # キャッシュディレクトリ
 cache_dir = ./cache
@@ -165,10 +160,14 @@ cache_dir = ./cache
 log_level = INFO
 
 [ENGINES]
-# 利用可能なエンジン
-openai_gpt35 = gpt-3.5-turbo
-openai_gpt4 = gpt-4
-openai_gpt4o = gpt-4o
+# 利用可能なエンジン（OCI Generative AI）
+text_engine = xai.grok-3
+multimodal_engine = meta.llama-4-scout-17b-16e-instruct
+
+# 参考用（現在は使用されていません）
+# openai_gpt35 = gpt-3.5-turbo
+# openai_gpt4 = gpt-4
+# openai_gpt4o = gpt-4o
 
 [TUTORIALS]
 # チュートリアル固有の設定
@@ -194,7 +193,7 @@ def display_next_steps():
     print("="*60)
 
     print("\n次のステップ:")
-    print("1. .envファイルを編集して実際のAPIキーを設定")
+    print("1. .envファイルを編集して実際のOCI Compartment OCIDを設定")
     print("2. チュートリアルを実行:")
     print("   python run_tutorial.py")
     print("\n個別のチュートリアルを実行:")
@@ -206,8 +205,9 @@ def display_next_steps():
     print("   README.md ファイルを参照してください")
 
     print("\n🔧 トラブルシューティング:")
-    print("   - APIキーが正しく設定されていることを確認")
+    print("   - OCI Compartment OCIDが正しく設定されていることを確認")
     print("   - インターネット接続を確認")
+    print("   - OCI Generative AIサービスの状態を確認")
     print("   - 必要に応じてファイアウォール設定を確認")
 
 def main():

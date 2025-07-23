@@ -1,4 +1,4 @@
-from textgrad.engine.openai import EngineLM
+from textgrad.engine.base import EngineLM
 
 def load_multimodal_instance_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs):
     if task_name == "scienceqa":
