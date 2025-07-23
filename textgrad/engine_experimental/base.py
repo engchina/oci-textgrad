@@ -7,7 +7,6 @@ import platformdirs
 import os
 
 
-
 def cached(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
